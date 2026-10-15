@@ -1,0 +1,7 @@
+requests
+unidecode
+python-dateutil
+pandas
+chardet
+rich
+openpyxl
