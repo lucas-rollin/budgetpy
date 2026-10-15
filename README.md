@@ -1,187 +1,156 @@
-# Budgetpy: Construction budgeting with SINAPI
+# Budgetpy: Construction Budgeting with SINAPI
 
-### Video Demo:  <(https://youtu.be/dzZb62XehV8)>
+A Python command-line tool for estimating construction project costs with SINAPI, Brazil's National System of Costs and Indexes of Construction. Look up unit prices and compositions, download the latest SINAPI table for any state, and price a whole budget spreadsheet in one step.
 
-### Description
-Budgetpy is a Python application designed to help construction professionals easily calculate project costs using data from the SINAPI (Brazil's National System of Costs and Indexes of Construction). The application allows users to look up unit prices and compositions from the SINAPI table, download and extract the latest SINAPI data, and calculate the total cost of a project using a budget file.
+**Stack:** Python · pandas · rich · requests
+
+![alt text](budgetpy.png)
+
+## Overview
+
+SINAPI publishes reference costs for construction items every month, per state. Budgetpy turns that table into a quick budgeting tool: find an item, then price an entire project from a CSV of composition codes and quantities.
+
+**Key terms**
+
+| Term | Meaning |
+|------|---------|
+| **SINAPI** | Brazil's national reference table of construction costs, published monthly by Caixa |
+| **Composition** | A construction activity with its unit cost, identified by a code |
+| **Desonerado** | The "tax-relief" variant of the table (payroll tax relief applied). SINAPI publishes both versions. |
 
 ## Features
-### SINAPI Lookup:
-- Search for values in the SINAPI table by composition code or by using a sequence of description keywords.
-- Lookup exact matches or keyword-based searches within the SINAPI descriptions to get detailed information on construction items.
-    
-### Download Latest SINAPI Table:
-- Automatically download the latest SINAPI table for any Brazilian state, with the option to specify if the table should include the "desonerado" attribute (tax relief applied or not).
 
-### Project Cost Calculation:
-- Submit a CSV file containing your project's budget, and the application will compute the total costs based on the SINAPI table.
-- Generate a new CSV file with the calculated costs per row, ready for download.
+- **Lookup:** Search compositions by exact code, or by a sequence of keywords in the description.
+- **Table download:** Fetch the latest SINAPI table for any Brazilian state, desonerado or not.
+- **Cost calculation:** Provide a budget CSV and Budgetpy joins it to the SINAPI table, computes the total and average cost, and can export a new CSV with the cost of each row.
+- **Input detection:** Automatically detects the budget file's encoding and delimiter.
+- **Interactive menus:** Styled terminal interface built with `rich`, with `help` and `exit` available everywhere.
 
-## Installation
-1. Clone the repository:
+## Getting Started
+
+**Prerequisites:** Python 3 and pip.
+
 ```bash
-git clone https://github.com/Harddus0/cs50p.git
-```
+git clone https://github.com/lucas-rollin/budgetpy.git
+cd budgetpy
 
-2. Navigate to the project directory:
-`cd cs50p`
+python3 -m venv venv
+source venv/bin/activate    # On Windows: venv\Scripts\activate
 
-3. Create virtual enviroment:
-`python3 -m venv venv`
-`source venv/bin/activate`  # For Windows: venv\Scripts\activate
-
-4. Install dependencies:
-`pip install -r requirements.txt`
-
-## Usage
-
-### Running the Program
-1. Start the Application:
-
-- To run the program without any command-line arguments:
-```bash
+pip install -r requirements.txt
 python project.py
 ```
-- You will be asked if you want to download the latest SINAPI table. Answer with "yes" or "no".
-    - If you choose "yes", you'll be prompted to select the Brazilian state and whether it is "desonerado" or not (tax relief status). The file will then be downloaded.
-    - If the download fails or you selected "no", you will be asked to manually provide the file path of an existing SINAPI table.
-2. Run the Program with a Pre-Selected File:
 
-- If you already have the SINAPI file and prefer to specify it via command-line:
+To skip the download prompt, pass an existing SINAPI file:
+
 ```bash
 python project.py SINAPI_Custo_Ref_Composicoes_Sintetico_sc_202408_NaoDesonerado.xlsx
 ```
-### Main Menu Options
-Once the SINAPI table is loaded, you are directed to the main menu, where you can select from the following commands:
 
-- [1] Lookup:
-    - Search for items in the SINAPI table by composition code or keywords.
+## Usage
 
-- [2] Calculate:
-    - Calculate the total cost of your project based on your budget file.
+On launch, Budgetpy asks whether to download the latest SINAPI table (`yes` or `no`). If you say yes, it asks for the state and whether you want the desonerado version, then downloads the file. If you say no, or the download fails, it asks for the path to an existing SINAPI table.
 
-- ['help']:
-    - Displays available commands.
+> **Download note:** `caixa.gov.br` sometimes blocks automated requests (HTTP 403 or 429). If that happens, download the table manually from the SINAPI website and provide its path.
 
-- ['exit']:
-    - Quits the program.
+Once the table is loaded, the main menu offers:
 
-### Detailed Menus
-Lookup Menu ([1]):
+| Command | Action |
+|---------|--------|
+| `1` | **Lookup:** search the SINAPI table |
+| `2` | **Calculate:** price a budget file |
+| `help` | Show available commands |
+| `exit` | Quit |
 
-- You will have two search options:
+### Lookup (`1`)
 
-    - Lookup from Keywords: Enter a sequence of words to search within SINAPI descriptions. Matching composition codes and descriptions will be displayed.
-    - Lookup from Exact Code: Enter a composition code to search for an exact match. If found, detailed information about the composition will be shown in a table.
-- ['Help']: Displays available commands for the lookup menu.
+- **From keywords:** Enter words to search within SINAPI descriptions. Matching codes and descriptions are listed.
+- **From exact code:** Enter a composition code. If found, its details are shown in a table.
 
-- ['Exit']: Returns to the main menu.
+Type `help` for commands or `exit` to return to the main menu.
 
-Calculate Menu ([2]):
+### Calculate (`2`)
 
-- You will be prompted to provide the file name or path for the budget CSV file.
-- Afterward, you’ll be asked to enter the column indexes for the composition code and quantities. The program will then compute the total and average cost of the project.
-- You will be given the option to download the results in a new CSV file by answering "yes" or "no".
+1. Enter the name or path of your budget CSV.
+2. Enter the column indexes for the composition codes and for the quantities.
+3. Budgetpy displays the total and average cost of the project.
+4. Choose whether to export the results to a new CSV.
 
-### Help Commands
-- Help is always available in every menu by typing 'help'.
-- Exit each menu and return to the previous one or quit the program by typing 'exit'.
+## Project Structure
 
-### Example Usage
-To calculate the total cost for a project:
-
-Run the Program:
-```bash
-python project.py
-```
-Download SINAPI Table or Load an Existing One:
-
-You can choose to download the latest SINAPI data or provide an existing file path.
-Use Lookup or Calculate:
-
-Use the lookup feature to find specific SINAPI items, or calculate the total project cost by providing a CSV budget file.
-Output:
-
-The program outputs the total and average cost, and you can choose to export the results to a CSV file.
-
-## project structure
 ```
 cs50p/
-    ├── request.py          # Handles downloading and extraction of SINAPI tables
-    ├── budget.py           # Manages loading and processing of the budget CSV file
-    ├── project.py          # Main application: coordinates the user interface and logic flow
-    ├── test_project.py     # Contains test cases for core functions (using pytest)
-    ├── requirements.txt    # List of required dependencies for the project
-    └── README.md           # Project documentation
+├── project.py          # Main application: user interface and logic flow
+├── request.py          # Downloads and extracts SINAPI tables
+├── budget.py           # Loads and processes the budget CSV
+├── test_project.py     # Tests for core functions (pytest)
+├── requirements.txt    # Dependencies
+└── README.md
 ```
 
-### `request.py` functions
-- `download_sinapi_table()`:
-    - downloads and extracts SINAPI table via request given inputs. It was noticed that "https://www.caixa.gov.br/" may block these requests, returning status 403 or 429. If it happens, the user needs to maually download the file. 
-    Downloads and extracts the SINAPI table via HTTP request based on user inputs.
-    - Note: The request to the URL "https://www.caixa.gov.br/" may return HTTP status codes like 403 (Forbidden) or 429 (Too Many Requests), which can block downloads. If this occurs, the user will need to manually download the SINAPI table.
-- `get_state()`:
-    - Prompts the user for the Brazilian state to filter the SINAPI table.
-- `get_desonerado()`:
-    - Asks the user if they want the "desonerado" version of the SINAPI table, which refers to the taxation-free version.
-- `get_date(month_count=0)`:
-    - Returns a string of the form `'%Y%m'` (year and month) for the SINAPI table. By default, it returns the current month, but month_count can adjust the date to previous months. 
+---
 
-### `budget.py` functions
-- `detect_encoding_and_separator(csv_filename):`
-    - Detects the encoding and delimiter used in the budget CSV file (important for correctly loading the data).
-- `load_budget_file():`
-    - Prompts the user to input the name or path of the budget CSV file and returns it as a pandas DataFrame for further processing.
+## Technical Reference
 
-### `project.py` Overview
-This is the core of the application, responsible for running the interactive budget management and cost calculation processes.
+### `project.py`
 
-- `main()`:
-    - Entry point of the application, handling the loading of the SINAPI table and displaying the main menu for user interaction. 
-- `load_sinapi_table()`:
-    - Loads and returns the SINAPI table as a pandas DataFrame for manipulation throughout the program. 
-- `filename_add_extension(filename)`:
-    - Adds the `.xlsx` extension to the filename if it is missing, ensuring proper file handling. 
-- `display_main_menu()`:
-    - Displays the main menu using the `rich` library for a more interactive and styled terminal interface.
-- `display_lookup_menu()`: 
-    - Displays the lookup menu for searching compositions within the SINAPI table.
-- `lookup_composition_table(df)`: 
-    - Handles user input in the lookup menu, routing commands to either keyword-based search or code-based search functions.
-- `filter(keywords, df)`: 
-    - Filters the SINAPI table for descriptions containing user-provided keywords, returning matching rows.
-- `lookup_composition_table_keyword(df)`: 
-    - Prompts the user for keywords and searches the SINAPI table for matching descriptions.
-- `lookup_composition_table_code(df)`: 
-    - Prompts the user for an exact SINAPI composition code and displays the matching composition information.
-- `calculate_total_cost(df)`:
-    - Calculates the total cost of the project by joining the budget file and SINAPI table based on the composition code and quantities.
-    - After calculating the total cost and average cost per item, it offers the user the option to export the results as a CSV file. 
-- `get_composition_index(budget_cols)`:
-    - Prompts the user to input the column index for the composition codes in the budget file.
-- `get_quantities_index(budget_cols)`:
-    - Prompts the user to input the column index for the quantities in the budget file. 
+The core of the application: runs the interactive lookup and calculation flows.
 
-## `test_project.py` functions
-Tests for the key functions are written using `pytest` to ensure that the logic and functionality of the program are reliable.
+| Function | Purpose |
+|----------|---------|
+| `main()` | Entry point: loads the SINAPI table and displays the main menu |
+| `load_sinapi_table()` | Loads the SINAPI table into a pandas DataFrame |
+| `filename_add_extension(filename)` | Adds `.xlsx` if the extension is missing |
+| `display_main_menu()` | Renders the main menu with `rich` |
+| `display_lookup_menu()` | Renders the lookup menu |
+| `lookup_composition_table(df)` | Routes lookup commands to keyword or code search |
+| `filter(keywords, df)` | Returns rows whose descriptions contain the keywords |
+| `lookup_composition_table_keyword(df)` | Prompts for keywords and displays matches |
+| `lookup_composition_table_code(df)` | Prompts for an exact code and displays the composition |
+| `calculate_total_cost(df)` | Joins the budget to the SINAPI table by code, computes total and average cost, and offers CSV export |
+| `get_composition_index(budget_cols)` | Prompts for and validates the composition-code column index |
+| `get_quantities_index(budget_cols)` | Prompts for and validates the quantities column index |
 
-- `test_filename_add_extension()`:
-    - Tests the `filename_add_extension()` function for different inputs, ensuring that filenames are properly handled, whether the extension is missing or already present. 
-- `test_filter()`: 
-    - Tests the `filter()` function to verify that it correctly accepts one or more keywords, returning the expected list of matching rows. Also checks if an empty list is returned when no matches are found. 
-- `test_get_quantities_index_valid()`:
-    - Verifies that `get_quantities_index()` correctly handles both valid and invalid user inputs, ensuring that only valid column indexes within the range are accepted. 
-- `test_get_composition_index_valid()`:
-    - Similar to the quantities index test, this ensures that `get_composition_index()` properly validates user input and restricts it to valid column indexes.
+### `request.py`
 
-## Running Tests
-To run the tests for the project, ensure you have pytest installed and then execute:
+| Function | Purpose |
+|----------|---------|
+| `download_sinapi_table()` | Downloads and extracts the SINAPI table via HTTP request, based on user input |
+| `get_state()` | Prompts for the Brazilian state |
+| `get_desonerado()` | Asks whether to use the desonerado version |
+| `get_date(month_count=0)` | Returns a `'%Y%m'` string for the table's month. Defaults to the current month; `month_count` steps back to earlier months. |
+
+### `budget.py`
+
+| Function | Purpose |
+|----------|---------|
+| `detect_encoding_and_separator(csv_filename)` | Detects the encoding and delimiter of the budget CSV so it loads correctly |
+| `load_budget_file()` | Prompts for the budget file and returns it as a pandas DataFrame |
+
+### Tests
+
+`test_project.py` uses `pytest` to cover the core logic:
+
+| Test | Verifies |
+|------|----------|
+| `test_filename_add_extension()` | Extensions are added when missing and left alone when present |
+| `test_filter()` | One or more keywords return the expected rows, and no matches return an empty list |
+| `test_get_quantities_index_valid()` | Only valid in-range column indexes are accepted for quantities |
+| `test_get_composition_index_valid()` | Same validation for the composition-code column |
+
+Install test dependencies
+
 ```bash
-pytest test_project.py
+pip install -r requirements-dev.txt
 ```
-For more detailed output, use:
-```bash
-pytest test_project.py -v
-```
-Make sure that all tests pass before making changes or contributions to the project to maintain the reliability and functionality of the application.
 
+Run tests
+
+```bash
+pytest test_project.py       # run the tests
+pytest test_project.py -v    # verbose output
+```
+
+## About
+
+Final project for [Harvard's CS50P](https://cs50.harvard.edu/python/), Introduction to Programming with Python.
